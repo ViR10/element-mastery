@@ -27,7 +27,7 @@ export default function Layout({ children, activeTab, onTabChange, settings, onT
   };
 
   return (
-    <div className="flex h-screen w-full bg-gray-50 dark:bg-gray-900 overflow-hidden text-gray-900 dark:text-gray-100 transition-colors duration-300 relative">
+    <div className="flex h-[100dvh] w-full bg-gray-50 dark:bg-gray-900 overflow-hidden text-gray-900 dark:text-gray-100 transition-colors duration-300 relative">
       
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-72 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-20 shadow-xl">
@@ -118,7 +118,7 @@ export default function Layout({ children, activeTab, onTabChange, settings, onT
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 z-40 px-6 py-3 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)] h-[88px] flex items-center">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 z-50 px-6 py-3 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)] h-[88px] flex items-center">
         <ul className="flex justify-between w-full relative">
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;

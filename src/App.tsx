@@ -19,6 +19,7 @@ export default function App() {
   const [settings, setSettings] = useState<AppSettings>(loadSettings());
   
   const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
+  const [currentMode, setCurrentMode] = useState<QuizMode>('mixed');
   const [quizResult, setQuizResult] = useState({ correct: 0, total: 0 });
 
   useEffect(() => {
@@ -30,8 +31,9 @@ export default function App() {
     }
   }, [settings]);
 
-  const handleStartQuiz = (mode: QuizMode) => {
-    const questions = QuizEngine.generateQuestions(mode, 10);
+  const handleStartQuiz = (mode: QuizMode, range?: [number, number]) => {
+    const questions = QuizEngine.generateQuestions(mode, 10, range);
+    setCurrentMode(mode);
     setCurrentQuestions(questions);
     setActiveView('quiz');
   };
@@ -89,6 +91,7 @@ export default function App() {
           <Quiz 
             key="quiz" 
             questions={currentQuestions} 
+            mode={currentMode}
             settings={settings}
             onComplete={handleQuizComplete}
             onExit={() => setActiveView('main')}

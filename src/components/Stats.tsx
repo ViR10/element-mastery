@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { X, Target, AlertCircle, CheckCircle } from 'lucide-react';
+import { X, Target, AlertCircle, CheckCircle, Clock, Percent } from 'lucide-react';
 import { QuizEngine } from '../logic/QuizEngine';
 import { elements } from '../data/elements';
 import { playSound } from '../logic/InteractionManager';
@@ -8,6 +8,7 @@ export default function Stats({ soundEnabled }: { key?: string; soundEnabled: bo
   const stats = QuizEngine.getStats();
   const seenIds = stats.seen || [];
   const wrongIds = stats.wrong || [];
+  const responseTimes = stats.responseTimes || [];
 
   const masteredIds = seenIds.filter((id: number) => !wrongIds.includes(id));
   const totalElements = elements.length;
@@ -16,6 +17,12 @@ export default function Stats({ soundEnabled }: { key?: string; soundEnabled: bo
   const masteredElements = elements.filter(e => masteredIds.includes(e.id));
 
   const masteryPercentage = Math.round((masteredIds.length / totalElements) * 100) || 0;
+  const accuracyPercentage = seenIds.length > 0 ? Math.round(((seenIds.length - wrongIds.length) / seenIds.length) * 100) : 0;
+  
+  const avgTimeMs = responseTimes.length > 0 
+    ? responseTimes.reduce((a: number, b: number) => a + b, 0) / responseTimes.length 
+    : 0;
+  const avgTimeSec = (avgTimeMs / 1000).toFixed(1);
 
   return (
     <div className="w-full h-full p-4 md:p-0 flex flex-col items-center">
@@ -33,7 +40,7 @@ export default function Stats({ soundEnabled }: { key?: string; soundEnabled: bo
               <span className="font-semibold text-white/90">Overall Mastery</span>
               <span className="text-3xl font-black">{masteryPercentage}%</span>
             </div>
-            <div className="w-full h-3 bg-white/30 rounded-full overflow-hidden">
+            <div className="w-full h-3 bg-white/30 rounded-full overflow-hidden mb-4">
               <motion.div 
                 className="h-full bg-white rounded-full"
                 initial={{ width: 0 }}
@@ -41,6 +48,12 @@ export default function Stats({ soundEnabled }: { key?: string; soundEnabled: bo
                 transition={{ duration: 1, ease: "easeOut" }}
               />
             </div>
+            
+            <div className="flex justify-between items-end mb-2">
+              <span className="font-semibold text-white/90">Topic Accuracy</span>
+              <span className="text-xl font-bold">{accuracyPercentage}%</span>
+            </div>
+
             <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm">
               <div className="bg-white/20 rounded-xl p-2">
                 <div className="font-black">{masteredIds.length}</div>
@@ -50,9 +63,9 @@ export default function Stats({ soundEnabled }: { key?: string; soundEnabled: bo
                 <div className="font-black">{wrongIds.length}</div>
                 <div className="text-white/80 text-xs uppercase">Learning</div>
               </div>
-              <div className="bg-white/20 rounded-xl p-2">
-                <div className="font-black">{totalElements - seenIds.length}</div>
-                <div className="text-white/80 text-xs uppercase">Unseen</div>
+              <div className="bg-white/20 rounded-xl p-2 flex flex-col items-center justify-center">
+                <div className="font-black flex items-center"><Clock size={14} className="mr-1"/> {avgTimeSec}s</div>
+                <div className="text-white/80 text-xs uppercase">Avg Time</div>
               </div>
             </div>
           </div>
@@ -62,7 +75,7 @@ export default function Stats({ soundEnabled }: { key?: string; soundEnabled: bo
             <div>
               <h3 className="text-lg font-bold mb-3 flex items-center text-gray-700 dark:text-gray-300">
                 <AlertCircle size={20} className="text-red-500 mr-2" />
-                Needs Practice
+                Weak Elements (Needs Practice)
               </h3>
               <div className="flex flex-wrap gap-2">
                 {weakElements.map(el => (
@@ -80,7 +93,7 @@ export default function Stats({ soundEnabled }: { key?: string; soundEnabled: bo
             <div>
               <h3 className="text-lg font-bold mb-3 flex items-center text-gray-700 dark:text-gray-300">
                 <CheckCircle size={20} className="text-green-500 mr-2" />
-                Strong Elements
+                Strong Topics
               </h3>
               <div className="flex flex-wrap gap-2">
                 {masteredElements.map(el => (
