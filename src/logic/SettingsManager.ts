@@ -1,14 +1,12 @@
 export interface AppSettings {
   soundEnabled: boolean;
   voiceEnabled: boolean;
-  timerEnabled: boolean;
   darkMode: boolean;
 }
 
 export const defaultSettings: AppSettings = {
   soundEnabled: true,
-  voiceEnabled: true,
-  timerEnabled: true,
+  voiceEnabled: false,
   darkMode: false,
 };
 

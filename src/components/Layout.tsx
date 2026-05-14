@@ -1,14 +1,14 @@
 import { ReactNode } from 'react';
 import { motion } from 'motion/react';
-import { Home, BarChart2, Settings as SettingsIcon, Volume2, VolumeX, Moon, Sun, TestTube2 } from 'lucide-react';
+import { Home, BarChart2, Settings as SettingsIcon, Volume2, VolumeX, Moon, Sun, TestTube2, BookOpen } from 'lucide-react';
 import { AppSettings } from '../logic/SettingsManager';
 import { vibrate, playSound } from '../logic/InteractionManager';
 
 interface LayoutProps {
   key?: string;
   children: ReactNode;
-  activeTab: 'home' | 'stats' | 'settings';
-  onTabChange: (tab: 'home' | 'stats' | 'settings') => void;
+  activeTab: 'home' | 'reference' | 'stats' | 'settings';
+  onTabChange: (tab: 'home' | 'reference' | 'stats' | 'settings') => void;
   settings: AppSettings;
   onToggleSetting: (key: keyof AppSettings) => void;
 }
@@ -16,11 +16,12 @@ interface LayoutProps {
 export default function Layout({ children, activeTab, onTabChange, settings, onToggleSetting }: LayoutProps) {
   const TABS = [
     { id: 'home', label: 'Play', icon: Home },
+    { id: 'reference', label: 'Reference', icon: BookOpen },
     { id: 'stats', label: 'Stats', icon: BarChart2 },
     { id: 'settings', label: 'Settings', icon: SettingsIcon },
   ] as const;
 
-  const handleTabClick = (id: 'home' | 'stats' | 'settings') => {
+  const handleTabClick = (id: 'home' | 'reference' | 'stats' | 'settings') => {
     vibrate(20);
     if (settings.soundEnabled) playSound('click');
     onTabChange(id);
@@ -50,7 +51,7 @@ export default function Layout({ children, activeTab, onTabChange, settings, onT
                 onClick={() => handleTabClick(tab.id)}
                 className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-300 font-bold ${
                   isActive 
-                    ? 'bg-blue-50 dark:bg-blue-500/10 text-[#4FACFE] shadow-sm' 
+                    ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm' 
                     : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200'
                 }`}
               >
@@ -133,13 +134,13 @@ export default function Layout({ children, activeTab, onTabChange, settings, onT
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     className={`p-3 rounded-2xl transition-colors duration-300 ${
                       isActive 
-                        ? 'bg-blue-50 dark:bg-blue-500/20 text-[#4FACFE]' 
+                        ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400' 
                         : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300'
                     }`}
                   >
                     <tab.icon size={26} strokeWidth={isActive ? 2.5 : 2} />
                   </motion.div>
-                  <span className={`text-[11px] font-bold mt-1 transition-colors duration-300 ${isActive ? 'text-[#4FACFE]' : 'text-gray-400 dark:text-gray-500'}`}>
+                  <span className={`text-[11px] font-bold mt-1 transition-colors duration-300 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'}`}>
                     {tab.label}
                   </span>
                 </button>

@@ -7,11 +7,12 @@ import Result from './components/Result';
 import Settings from './components/Settings';
 import Stats from './components/Stats';
 import Layout from './components/Layout';
+import Reference from './components/Reference';
 import { QuizEngine, QuizMode, Question } from './logic/QuizEngine';
 import { loadSettings, saveSettings, AppSettings } from './logic/SettingsManager';
 
 type AppView = 'splash' | 'main' | 'quiz' | 'result';
-type AppTab = 'home' | 'stats' | 'settings';
+type AppTab = 'home' | 'reference' | 'stats' | 'settings';
 
 export default function App() {
   const [activeView, setActiveView] = useState<AppView>('splash');
@@ -34,6 +35,13 @@ export default function App() {
   const handleStartQuiz = (mode: QuizMode, range?: [number, number]) => {
     const questions = QuizEngine.generateQuestions(mode, 10, range);
     setCurrentMode(mode);
+    setCurrentQuestions(questions);
+    setActiveView('quiz');
+  };
+
+  const handleRetryQuiz = () => {
+    // Preserve current mode and generate new questions for immediate restart
+    const questions = QuizEngine.generateQuestions(currentMode, 10);
     setCurrentQuestions(questions);
     setActiveView('quiz');
   };
@@ -70,6 +78,9 @@ export default function App() {
                   settings={settings}
                 />
               )}
+              {activeTab === 'reference' && (
+                <Reference key="reference" />
+              )}
               {activeTab === 'stats' && (
                 <Stats 
                   key="stats"
@@ -103,9 +114,7 @@ export default function App() {
             key="result" 
             correct={quizResult.correct} 
             total={quizResult.total}
-            onRetry={() => {
-              setActiveView('main');
-            }} 
+            onRetry={handleRetryQuiz} 
             onHome={() => setActiveView('main')}
           />
         )}

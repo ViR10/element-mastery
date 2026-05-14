@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { RotateCcw, Home, Trophy } from 'lucide-react';
+import { RotateCcw, Home, Trophy, Target, Award, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useEffect } from 'react';
 
@@ -18,7 +18,7 @@ export default function Result({ correct, total, onRetry, onHome }: ResultProps)
     if (percentage >= 70) {
       const duration = 3 * 1000;
       const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
 
       const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
@@ -38,90 +38,104 @@ export default function Result({ correct, total, onRetry, onHome }: ResultProps)
     }
   }, [percentage]);
   
-  let label = "Keep Practicing!";
-  let color = "text-[#FF9800]";
-  if (percentage >= 90) {
-    label = "Master!";
-    color = "text-[#4CAF50]";
-  } else if (percentage >= 70) {
-    label = "Good Job!";
-    color = "text-[#4FACFE]";
-  }
+  const getRank = () => {
+    if (percentage >= 95) return { label: 'Legendary!', color: 'text-amber-500', icon: Trophy, bg: 'bg-amber-50' };
+    if (percentage >= 80) return { label: 'Expert!', color: 'text-indigo-600', icon: Award, bg: 'bg-indigo-50' };
+    if (percentage >= 60) return { label: 'Good Progress!', color: 'text-emerald-600', icon: Target, bg: 'bg-emerald-50' };
+    return { label: 'Keep Practicing!', color: 'text-rose-500', icon: ArrowRight, bg: 'bg-rose-50' };
+  };
+
+  const rank = getRank();
+  const RankIcon = rank.icon;
 
   return (
     <motion.div 
-      className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 items-center justify-center p-6"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
+      className="flex flex-col min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 items-center justify-center p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
     >
-      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-[32px] shadow-xl p-8 flex flex-col items-center">
+      <div className="w-full max-w-sm flex flex-col items-center">
         
-        <div className="mb-4">
-          <Trophy size={48} className={color} />
-        </div>
+        {/* Rank Badge */}
+        <motion.div 
+          initial={{ scale: 0, rotate: -20 }}
+          animate={{ scale: 1, rotate: 0 }}
+          className={`w-24 h-24 rounded-[32px] ${rank.bg} ${rank.color} flex items-center justify-center mb-6 shadow-xl shadow-gray-200 dark:shadow-none border border-white dark:border-gray-800`}
+        >
+          <RankIcon size={48} strokeWidth={2.5} />
+        </motion.div>
         
-        <h2 className={`text-3xl font-bold mb-8 ${color}`}>{label}</h2>
+        <h2 className={`text-4xl font-black mb-2 text-center tracking-tight ${rank.color}`}>{rank.label}</h2>
+        <p className="text-gray-400 font-bold text-xs uppercase tracking-[0.2em] mb-10">Challenge Completed</p>
 
-        {/* Score Circle */}
-        <div className="relative w-48 h-48 mb-8 flex items-center justify-center">
+        {/* Premium Score Visualization */}
+        <div className="relative w-56 h-56 mb-10 flex items-center justify-center">
           <svg className="w-full h-full transform -rotate-90 absolute inset-0" viewBox="0 0 36 36">
             <path
-              className="text-gray-100 dark:text-gray-700"
-              strokeWidth="3"
+              className="text-gray-50 dark:text-gray-800"
+              strokeWidth="4"
               stroke="currentColor"
               fill="none"
               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
             />
             <motion.path
-              className="text-[#4FACFE]"
+              className={rank.color}
               strokeDasharray={`${percentage}, 100`}
-              strokeWidth="3"
+              strokeWidth="4"
               strokeLinecap="round"
               stroke="currentColor"
               fill="none"
               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               initial={{ strokeDasharray: "0, 100" }}
               animate={{ strokeDasharray: `${percentage}, 100` }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
+              transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
             />
           </svg>
           <div className="flex flex-col items-center">
-            <span className="text-5xl font-black">{percentage}%</span>
-            <span className="text-sm font-medium text-gray-500 uppercase tracking-wider mt-1">Accuracy</span>
+            <motion.span 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5 }}
+              className="text-6xl font-black tracking-tighter"
+            >
+              {percentage}%
+            </motion.span>
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Accuracy</span>
           </div>
         </div>
 
-        <div className="flex w-full justify-around mb-10 bg-gray-50 dark:bg-gray-700 p-4 rounded-2xl">
-          <div className="flex flex-col items-center">
-            <span className="text-sm text-gray-500 font-bold uppercase">Correct</span>
-            <span className="text-2xl font-black text-[#4CAF50]">{correct}</span>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-4 w-full mb-10">
+          <div className="bg-emerald-50 dark:bg-emerald-950/20 p-5 rounded-3xl border border-emerald-100 dark:border-emerald-900/30 flex flex-col items-center">
+            <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Correct</span>
+            <span className="text-2xl font-black text-emerald-700 dark:text-emerald-300 mt-1">{correct}</span>
           </div>
-          <div className="w-px bg-gray-200 dark:bg-gray-600"></div>
-          <div className="flex flex-col items-center">
-            <span className="text-sm text-gray-500 font-bold uppercase">Wrong</span>
-            <span className="text-2xl font-black text-[#F44336]">{total - correct}</span>
+          <div className="bg-rose-50 dark:bg-rose-950/20 p-5 rounded-3xl border border-rose-100 dark:border-rose-900/30 flex flex-col items-center">
+            <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider">Mistakes</span>
+            <span className="text-2xl font-black text-rose-700 dark:text-rose-300 mt-1">{total - correct}</span>
           </div>
         </div>
 
-        <div className="w-full space-y-4">
+        {/* Action Buttons */}
+        <div className="w-full space-y-4 px-4">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onRetry}
-            className="w-full flex items-center justify-center space-x-2 bg-[#FF9800] text-white font-bold text-lg py-4 rounded-[18px] shadow-[0_6px_0_0_#F57C00] active:shadow-[0_0px_0_0_#F57C00] active:translate-y-[6px] transition-all"
+            className="w-full py-5 bg-indigo-600 text-white font-black text-base rounded-[20px] shadow-xl shadow-indigo-200 dark:shadow-none flex items-center justify-center space-x-3"
           >
-            <RotateCcw size={24} />
-            <span>RETRY QUIZ</span>
+            <RotateCcw size={20} />
+            <span className="uppercase tracking-widest">Retry Challenge</span>
           </motion.button>
           
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onHome}
-            className="w-full flex items-center justify-center space-x-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-white font-bold text-lg py-4 rounded-[18px] border-2 border-gray-200 dark:border-gray-600 transition-all"
+            className="w-full py-5 bg-white dark:bg-gray-800 text-gray-800 dark:text-white font-black text-base rounded-[20px] border border-gray-100 dark:border-gray-700 shadow-sm flex items-center justify-center space-x-3"
           >
-            <Home size={24} />
-            <span>HOME</span>
+            <Home size={20} />
+            <span className="uppercase tracking-widest">Back to Home</span>
           </motion.button>
         </div>
 
